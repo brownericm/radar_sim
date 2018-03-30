@@ -24,7 +24,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 TODO: rewrite the direction conversions
 """
 
-from math import log10, pi
+from numpy import log10, pi
 #import numpy as np
 
 def w2db(w):

@@ -4,15 +4,14 @@ Created on Tue Feb  6 16:39:30 2018
 
 @author: brown
 """
-from math import pi
-from numpy import array
+from numpy import array, pi
 
 c0 = 299792458
 kb = 1.3806503e-23
 r2d = 180/pi
 d2r = pi/180
-earth_r0 = 6.375E3
-earth_re = earth_r0*(4/3)
+r0 = 6.375E3
+re = r0*(4/3)
 
 # selection of reflection surface values and corresponding ce in km [N0n, cen]
 # US average is N0=313

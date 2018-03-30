@@ -9,19 +9,15 @@ Created on Wed Feb 14 12:03:38 2018
 Technically this is atmos and ground effects
 """
 from radarparams import range_max, freq, pt
-import EnvConst as env
-from EnvConst import wvd, c0, kb
-from EnvConst import earth_r0 as r0
-from EnvConst import earth_re
+from envconst import wvd, c0, kb, r0, re
 from convert import deg2rad, rad2deg, km2m
 from scipy.special import i0
-from scipy import interpolate
-from math import pi
-from numpy import angle, linspace, append, arcsin, arccos, cos, sqrt, exp, sin
+from scipy import interpolate, sqrt
+from numpy import angle, linspace, append, arcsin, arccos, cos, exp, sin, pi
 import numpy as np
 
 
-def s_rough_e(hrms, psig, lambda_):
+def s_rough_e(hrms, psig):
     """
     Calculate surface roughness according to exponential
     Inputs:
@@ -30,17 +26,18 @@ def s_rough_e(hrms, psig, lambda_):
         sr =
     """
     #exponential representation of surface roughtness
-    psig = deg2rad(psig)
-    sr = exp((2*((2*pi*hrms*sin(psig)))/lambda_)**2)
+    lambda_ = c0/freq
+    inner = (2 * pi * hrms * sin(psig)/lambda_)**2
+    sr = exp(-2*inner)
     return sr
 
-def s_rough_b(hrms, psig, lambda_):
+def s_rough_b(hrms, psig):
     """
     Calculates surface roughness with zeroth order bessel
     Inputs:
     Outputs:
     """
-    psig = deg2rad(psig)
+    lambda_ = c0/freq
     z = 2*((2*pi*hrms*sin(psig))/lambda_)
     sr = exp(-z)*i0(z)
     return sr
@@ -48,15 +45,21 @@ def s_rough_b(hrms, psig, lambda_):
 def divergence(psig, r1, r2, hr, ht):
     """
     Inputs:
+        psig = grazing angle in radians
+        r1 = ground range to bounce point in meters
+        r2 = ground range to bounce point on target sidde in meters
+        hr = hieght radar in meters
+        ht = height target in meters
     Outputs:
+        div = divergence value
     #This will need a toggle for different earth models sphere or 4/3
     # 4/3 case
     """
-    psig = deg2rad(psig)
-    r0 = 6371 # Earth radius in km
-    re = (4/3) * r0
+    re_m = km2m(re)
     r = r1 + r2
-    div = 1/sqrt(1+(4*r1*r2)/(re*r*sin(2*psig)))
+    num = (re_m*r*sin(psig)*cos(psig))
+    denom = ((2*r1*r2/cos(psig))+re_m*r*sin(psig))*(1+hr/re_m)*(1+ht/re_m)
+    div = sqrt(num/denom)
 
     return div
 
@@ -74,12 +77,17 @@ def refl_coef(psig, eps_p, eps_pp):
     TODO: Add LHCP and RHCP cases
     TODO: Add Sea State lookup
     """
-    psig = deg2rad(psig)
     eps = eps_p - 1j*eps_pp
-    Gamma_v = (eps * sin(psig)-sqrt(eps-(cos(psig))**2))/(eps*sin(psig)+sqrt(eps-(cos(psig))**2))
-    Gamma_h = (sin(psig)-sqrt(eps-(cos(psig))**2))/(sin(psig)+sqrt(eps-(cos(psig))**2))
+    arg1 = eps - (cos(psig)**2)
+    arg2 = sqrt(arg1)
+    arg3 = sin(psig)
+    arg4 = eps*arg3
+    rv = (arg4-arg2)/(arg4+arg2)
+    rh = (arg3-arg2)/(arg3+arg2)
+    #Gamma_v = (eps * sin(psig)-sqrt(eps-(cos(psig))**2))/(eps*sin(psig)+sqrt(eps-(cos(psig))**2))
+    #Gamma_h = (sin(psig)-sqrt(eps-(cos(psig))**2))/(sin(psig)+sqrt(eps-(cos(psig))**2))
 
-    return Gamma_v, Gamma_h
+    return rv, rh
 
 def atmo_absorp(ht, hr, freq, beta):
     """
@@ -93,23 +101,24 @@ def atmo_absorp(ht, hr, freq, beta):
         gammaH2O = atmospheric attenuaation due to H2O dB
         range_vec = range array with corralary dimensions to gamma
 
-    TODO: Implement Lookup or function for wvd at alt
-
     Note: This is straight from Mahafza and the numbers are obfuscated by weird
     programming decisions.
 
-    I spent way too much time figuring out how to interolate wvd from book into
+    I spent way too much time figuring out how to interpolate wvd from book into
     an arbitrary height lookup
 
     for now target must be above radar!!
 
     TODO: Revise to make clearer
     TODO: Think about the best way to construct height vector
+    TODO: Clean up booleans
+    ---
+    DONE: Implement Lookup or function for wvd at alt
     """
 
     v1 = 0.018 # "v_n" values from chapter 8 references "Van Vleek"
     #v2 = 0.05
-   # v3 = .1
+    #v3 = .1
     #v4 = 0.3
     #ht = ht * 1000 # convert to meters for arange() consistancy
     #hr = hr * 1000
@@ -165,7 +174,7 @@ def multipath(range_sl, ht, hr):
     Using the 4/3 earth model, we calculate the multipath range by determining the land range between target and radar and
     calculating the earth center angle between them. "re" is used as earther radius
     """
-    check_range = sqrt(2*earth_re)*(sqrt(ht)+sqrt(hr))
+    check_range = sqrt(2*re)*(sqrt(ht)+sqrt(hr))
     if check_range > range_max:
        print("Range is beyond radar LOS")
        return
@@ -176,27 +185,27 @@ def multipath(range_sl, ht, hr):
 
     #cast constants to meters
     # r0 = km2m(r0)
-    re = km2m(earth_re)
-
-
-    r_num = (re+hr)**2+(re+ht)**2-Rd**2
-    r_denum = 2*(re+hr)*(re+hr)
-    r = re*arccos(np.sqrt(r_num/r_denum))
-    p = (2/sqrt(3)) * sqrt(re * (ht + hr) + r**2 / 4) #Eq 8.94
-    sai = arcsin((2 * re * r * (ht - hr))/p**3) #Eq 8.95
+    re_m = km2m(re)
+    val1 = Rd**2 - (ht -hr)**2
+    val2 = 4 * (re_m + hr) * (re_m + ht)
+    r = 2 * re_m * arcsin(sqrt(val1/val2))
+    #r_num = (re_m+hr)**2+(re_m+ht)**2-Rd**2
+    #r_denum = 2*(re_m+hr)*(re_m+hr)
+    #r = re_m*arccos(np.sqrt(r_num/r_denum))
+    p = (2/sqrt(3)) * sqrt(re_m * (ht + hr) + r**2 / 4) #Eq 8.94
+    sai = arcsin((2 * re_m * r * (ht - hr))/p**3) #Eq 8.95
     r1 = r/2 - p*sin(sai/3) # Eq 8.93
     r2 = r - r1
 
-    #phi = r / re # Eq 8.97
-    phi1 = r1 / re # angle w/ vertex at center of earth with endpoints of bounce point and radar position
-    phi2 = r2 / re
+    #phi = r / re_m # Eq 8.97
+    phi1 = r1 / re_m # angle w/ vertex at center of earth with endpoints of bounce point and radar position
+    phi2 = r2 / re_m
 
-    R1 = sqrt(hr**2 + 4*re*(re + hr)*(sin(phi1/2))**2)
-    R2 = sqrt(ht**2 + 4*re*(re + ht)*(sin(phi2/2))**2)
-    psi = arcsin((2*re*hr + hr**2 - R1**2)/(2*re*R1))
-    psi_deg = rad2deg(psi)
-
-    deltaR = (4*R1*R2*(np.sin(psi)))**2/(R1+R2+Rd) #path difference
+    R1 = sqrt(hr**2 + 4*re_m*(re_m + hr)*(sin(phi1/2))**2)
+    R2 = sqrt(ht**2 + 4*re_m*(re_m + ht)*(sin(phi2/2))**2)
+    psig = arcsin((2*re_m*hr + hr**2 - R1**2)/(2*re_m*R1)) #radian
+    deltaR = R1 + R2 - Rd
+    #deltaR = (4*R1*R2*(np.sin(psi)))**2/(R1+R2+Rd) #path difference
 
 # ==========================
 # Ground and Atmos Effects
@@ -204,21 +213,24 @@ def multipath(range_sl, ht, hr):
 
     hrms = 1; #surface height irregularity
     lambda_ = c0/freq
-    sr = s_rough_b(hrms, psi_deg, lambda_)
-    div = divergence(psi_deg, r1, r2, hr, ht)
-    eps_p = 56 # approx sea water @ 10Ghz
-    eps_pp = 40
-    Gamma_v, Gamma_h = refl_coef(psi_deg, eps_p, eps_pp)
+    sr = s_rough_e(hrms, psig)
+    #sr=1
+    div = divergence(psig, r1, r2, hr, ht)
+    #div=1
+    eps_p = 50 # approx sea water @ 10Ghz
+    eps_pp = 15
+    Gamma_v, Gamma_h = refl_coef(psig, eps_p, eps_pp)
+    #Gamma_v = 1
     #phi_h = angle(Gamma_h)
     phi_v = angle(Gamma_v)
+    #phi_v = pi
     # Here I assume vertically polarized beam as it is more performant
     rho = abs(Gamma_v) * div * sr
-    delta_phi = (2 * pi * deltaR) / lambda_
+    delta_phi = 2 * pi * deltaR / lambda_
 
     alpha = delta_phi + phi_v
 
     F = np.sqrt(1 + rho**2 + 2 * rho * cos(alpha)) # Propogation Factor Eq. 8.74
-
     return F
 # =============================================================================
 # def refraction(range_, el, N0_index, rho_max, hmax, freq):
