@@ -19,11 +19,11 @@ import numpy as np
 
 def s_rough_e(hrms, psig):
     """
-    Calculate surface roughness according to exponential
+    Calculate surface roughness according to exponential representation of surface roughtness
     Inputs:
-        hrms = average height of
+        hrms = average roughness of surface RMS (root mean squared) value
     Outputs:
-        sr =
+        sr = Surface Roughness
     """
     #exponential representation of surface roughtness
     lambda_ = c0/freq
@@ -33,9 +33,11 @@ def s_rough_e(hrms, psig):
 
 def s_rough_b(hrms, psig):
     """
-    Calculates surface roughness with zeroth order bessel
+    Calculates surface roughness with zeroth order bessel (Supposedly more accurate)
     Inputs:
+        hrms = average roughness of surface RMS (root mean squared) value
     Outputs:
+        sr = Surface Roughness
     """
     lambda_ = c0/freq
     z = 2*((2*pi*hrms*sin(psig))/lambda_)
@@ -107,11 +109,11 @@ def atmo_absorp(ht, hr, freq, beta):
     I spent way too much time figuring out how to interpolate wvd from book into
     an arbitrary height lookup
 
-    for now target must be above radar!!
+    !!! for now target must be above radar
 
     TODO: Revise to make clearer
     TODO: Think about the best way to construct height vector
-    TODO: Clean up booleans
+    TODO: Clean up booleans, I used bitwise instead of logical booleans which is why it is so messy
     ---
     DONE: Implement Lookup or function for wvd at alt
     """

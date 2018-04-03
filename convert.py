@@ -4,9 +4,10 @@ Created on Tue Feb  6 22:07:37 2018
 
 @author: brown
 
-DISCLAIMER: The geographic conversions are not mine, they come from Pymap3D
+!!! DISCLAIMER: The geographic conversions are not mine, they come from Pymap3D
 I am rewriting them as a learning exercise, and to get more comfortable with
 their input and output formats.
+
 ----------------------------------------------------
 Copyright (c) 2014-2018 Michael Hirsch, Ph.D.
 Copyright (c) 2013, Felipe Geremia Nievinski
