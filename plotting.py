@@ -27,7 +27,18 @@ def propogation_plot(range_,F_db):
     return
 
 def rcs_plot(range_, sigma_db):
-    plt.plot(range_, sigma_db)
+    f1 = plt.figure()
+    x1 = f1.gca()
+    sigma = convert.db2w(sigma_db)
+    p1 = x1.plot(range_,sigma)
+    plt.show()
+    return 
+
+def gain_plot(range_,G):
+    f1 = plt.figure()
+    x1 = f1.gca()
+    p1 = x1.plot(range_,G)
+    plt.show()
     return 
 
 def ant_pat(filename = None):
