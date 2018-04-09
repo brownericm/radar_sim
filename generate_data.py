@@ -28,3 +28,10 @@ For each PRF we need to iterate 0:(CPI-1) b/c of zero indexing:
        write pulse info to scenario data structure
 
 """
+def calc_rcv_pow():
+       """
+       This module replaces radar_rng_eq.py and functionizes its outputs.
+       Extra bits of the rng_eq file that are not SNR calcs will be moved to the wrapper file
+       i.e. plotting toggles, local variables, todo lists and references.
+       """
+       return
