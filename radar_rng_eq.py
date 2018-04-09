@@ -7,19 +7,19 @@ Keep vigilent for dot multipliers hidden in code a * b in matlab is a.dot(b) in 
 REMINDER!!
 
 NOTE!!!
-TODO: Add main() for radar sim
+IN PROGRESS: Add main() for radar sim
 TODO: Refine RRE to take vector inputs and option plots
-TODO: Write plotting sub function
-TODO: Implement PRFs
-TODO: Write Range Res fn
-TODO: Write Waveforms
-TODO: Write Doppler fn
-TODO: Range and doppler ambiguity
+IN PROGRESS: Write plotting sub function
+DONE: Implement PRFs
+DONE: Write Range Res fn
+DONE: Write Waveforms
+DONE: Write Doppler fn
+IN PROGRESS: Range and doppler ambiguity
 TODO: CFAR
-TODO: Add target data to radarparams (velocity vector, size(RCS), alt, etc)
-TODO: Add Antenna pattern parsing (matlab to python)
+DONE: Add target data to radarparams (velocity vector, size(RCS), alt, etc)
+DONE: Add Antenna pattern parsing (matlab to python)
 TODO: Rewrite RRE for larger program
-TODO: Double check sqrt() usage. np.sqrt and math.sqrt do not cast to complex automagically
+DONE: Double check sqrt() usage. np.sqrt and math.sqrt do not cast to complex automagically
     scipy.sqrt() is the correct one for this application
 NOTE!!!
 
