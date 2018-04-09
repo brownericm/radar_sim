@@ -35,7 +35,6 @@ from convert import w2db
 import atmos_effects
 from numpy import pi
 import plotting as plots
-import matplotlib.pyplot as plt
 
 def RadarRngEq():
     """Prints SNR, will be modified for other uses later
@@ -88,19 +87,19 @@ def RadarRngEq():
     rx_db = four_pi_db + k_db + To_db + BW_db + NF + loss + range_db
 
     snr = tx_db - rx_db
-    
-    
+
+
     if snrplot == True:
         plots.snr_plot(range_,snr)
 
     if propplot == True:
         plots.propogation_plot(range_,F_db)
-        
+
 #    if rcsplot is True:
 #        plots.rcs_plot(range_,sigma_db)
-        
-    
-        
+
+
+
     if pat_plot == True:
         # !!! Delete the pound sign (#) below and put your pattern filename between the  '-'. Should look like plots.ant_pat(filename = '51by51_circ_pat_db.mat')
         #plots.ant_pat(filename = '<your_filename_here>')

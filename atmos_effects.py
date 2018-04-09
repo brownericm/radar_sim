@@ -113,7 +113,8 @@ def atmo_absorp(ht, hr, freq, beta):
 
     TODO: Revise to make clearer
     TODO: Think about the best way to construct height vector
-    TODO: Clean up booleans, I used bitwise instead of logical booleans which is why it is so messy
+    TODO: Clean up booleans, I used bitwise (python is funny with syntax sometimes)
+           instead of logical booleans which is why it is so messy
     ---
     DONE: Implement Lookup or function for wvd at alt
     """
