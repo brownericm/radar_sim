@@ -27,6 +27,7 @@ def snr_plot(range_,snr):
     f1 = plt.figure()
     x1 = f1.gca()
     p1 = x1.plot(range_,snr)
+    x1.set(xlabel = 'Range in meters', ylabel = 'SNR in dB', title = 'SNR vs. Range')
     plt.show()
     return
 
@@ -34,6 +35,7 @@ def propogation_plot(range_,F_db):
     f1 = plt.figure()
     x1 = f1.gca()
     p1 = x1.plot(range_,F_db)
+    x1.set(xlabel = 'Range in meters', ylabel= 'Propogation Factor in dB', title = 'Range vs. Propogation Factor')
     plt.show()
     return
 
@@ -83,7 +85,11 @@ def ant_pat(filename = None):
     a2 = plt.subplot(2,1,2,projection='3d')
 
     p1 = a1.contour(file_pat)
+    a1.set_title('Contour plot of pattern matrix')
+    a1.set_xlabel('intensity per cell X (dB)')
+    a1.set_ylabel('Intensity per cell Y (dB)')
     p2 = a2.plot_surface(X, Y, Z, cmap='plasma')
+    a2.set(xlabel = 'Cell # X dimension', ylabel = 'Cell # Y dimension', title= '3D plot pattern')
     plt.show()
     return
 
