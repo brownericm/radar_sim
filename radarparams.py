@@ -48,7 +48,7 @@ PRF = 12000 #Hz (for now just a single PRF)
 
 # TODO: make pulse type a function/module
 pulse_type = 'lfm' # pulse type right now can be either instantaneous (None) or lfm
-"""
+
 if pulse_type is 'lfm':
        duty = .2
        freq1 = 10E+9
@@ -65,7 +65,7 @@ if pulse_type is 'lfm':
        # LFM Pulse (up/down)
        ts = sp.arange(-tau/2, tau/2, 1/freq)
        ramp = np.pi*BW/tau
-       pulse = sp.exp(1j*ramp*ts^2)
+       pulse = sp.exp(1j*ramp*ts**2)
 
 # Gating and RDMap Axes
 range_res = env.c0/2/BW
@@ -78,7 +78,7 @@ doppler_res = sp.maximum(PRF)/nfft
 doppler_max = PRF/2 # unfold doppler space N times N*PRF/2
 doppler_axis = sp.arange(-doppler_max, doppler_max, doppler_res)
 num_dopbins = doppler_axis.size
-"""
+
 
 
 
