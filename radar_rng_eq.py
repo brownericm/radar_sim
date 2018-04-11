@@ -30,10 +30,11 @@ NOTE!!!
 @ref: Skolnik, Radar Handbook
 """
 from envconst import c0, kb
-from radarparams import el_angle, pt, BW, range_, ht, hr, To, sigma, NF, G, loss, freq
+from radarparams import  pt, BW, hr, To, NF, G, loss, freq
+from scenario_setup import target_range, target_alt, target_rcs 
 from convert import w2db
 import atmos_effects
-from numpy import pi
+from numpy import pi, linspace
 import plotting as plots
 
 def RadarRngEq():
@@ -64,9 +65,16 @@ def RadarRngEq():
 
     # Local Vars
     lambda_ = c0/freq #wavelength
-    beta = el_angle
+    #beta = el_angle
+    range_ = target_range
+    ht = target_alt
+    sigma = target_rcs
+    
+    range_vec = linspace(2000, 55000, 500) # for graphing
 
     # Propogation Effects
+    F_graph = atmos_effects.multipath(range_vec, ht, hr)
+    F_graph = 4*w2db(0.0015+F_graph)
     F = atmos_effects.multipath(range_, ht, hr)
     #L_a = atmos_effects.atmo_absorp(ht, hr, freq, beta)
 
@@ -90,10 +98,15 @@ def RadarRngEq():
 
 
     if snrplot == True:
-        plots.snr_plot(range_,snr)
-
+        # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
+        tx_db_graph = pt_db + G + G + lambda_sqdb + sigma_db + F_graph
+        rx_db_graph = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec**4)
+        snr_graph = tx_db_graph - rx_db_graph
+        plots.snr_plot(range_vec,snr_graph)
+    
     if propplot == True:
-        plots.propogation_plot(range_,F_db)
+        # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
+        plots.propogation_plot(range_vec,F_graph)
 
 #    if rcsplot is True:
 #        plots.rcs_plot(range_,sigma_db)
@@ -106,5 +119,5 @@ def RadarRngEq():
         plots.ant_pat()
 
     # HACK: return all variable for viewing sanity check
-    return F_db, pt_db, lambda_sqdb, k_db, sigma_db, To_db, BW_db, range_db, four_pi_db
-F_dB, pt_db, lambda_sqdb, k_db, sigma_db, to_db, b_db, range_db, four_pi_db = RadarRngEq()
+    return F_db, pt_db, lambda_sqdb, k_db, sigma_db, To_db, BW_db, range_db, four_pi_db, snr
+F_dB, pt_db, lambda_sqdb, k_db, sigma_db, to_db, b_db, range_db, four_pi_db, snr = RadarRngEq()

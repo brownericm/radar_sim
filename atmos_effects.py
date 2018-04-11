@@ -232,8 +232,7 @@ def multipath(range_sl, ht, hr):
     delta_phi = 2 * pi * deltaR / lambda_
 
     alpha = delta_phi + phi_v
-
-    F = np.sqrt(1 + rho**2 + 2 * rho * cos(alpha)) # Propogation Factor Eq. 8.74
+    F = sqrt(1 + rho**2 + 2 * rho * cos(alpha)) # Propogation Factor Eq. 8.74
     return F
 # =============================================================================
 # def refraction(range_, el, N0_index, rho_max, hmax, freq):
