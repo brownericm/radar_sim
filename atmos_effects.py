@@ -113,7 +113,8 @@ def atmo_absorp(ht, hr, freq, beta):
 
     TODO: Revise to make clearer
     TODO: Think about the best way to construct height vector
-    TODO: Clean up booleans, I used bitwise instead of logical booleans which is why it is so messy
+    TODO: Clean up booleans, I used bitwise (python is funny with syntax sometimes)
+           instead of logical booleans which is why it is so messy
     ---
     DONE: Implement Lookup or function for wvd at alt
     """
@@ -231,8 +232,7 @@ def multipath(range_sl, ht, hr):
     delta_phi = 2 * pi * deltaR / lambda_
 
     alpha = delta_phi + phi_v
-
-    F = np.sqrt(1 + rho**2 + 2 * rho * cos(alpha)) # Propogation Factor Eq. 8.74
+    F = sqrt(1 + rho**2 + 2 * rho * cos(alpha)) # Propogation Factor Eq. 8.74
     return F
 # =============================================================================
 # def refraction(range_, el, N0_index, rho_max, hmax, freq):
