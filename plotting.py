@@ -93,7 +93,13 @@ def ant_pat(filename = None):
     plt.show()
     return
 
+def det_range():
+        
+    return
 
+def rng_v_angle():
+    
+    return
 
 def rng_dop_map():
 

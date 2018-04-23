@@ -30,20 +30,20 @@ NOTE!!!
 @ref: Skolnik, Radar Handbook
 """
 from envconst import c0, kb
-from radarparams import  pt, BW, hr, To, NF, G, loss, freq
-from scenario_setup import target_range, target_alt, target_rcs 
-from convert import w2db
+from radarparams import  pt, BW, hr, To, NF, loss, freq
+from scenario_setup import target_range, target_alt, target_rcs
+from convert import w2db, db2w
 import atmos_effects
-from numpy import pi, linspace
+from numpy import pi, linspace, log10, max, isscalar, broadcast_to, argmax
 import plotting as plots
 
-def RadarRngEq():
+def RadarRngEq(G, ht):
     """Prints SNR, will be modified for other uses later
 
     SNR = (pt*g^2*lambda_^2*sigma)/((4*pi)^3*k*temp_s*nf*l*r^4)
     pt = power transmitted - Watts
     freq = radar freq - Hz
-    G = antenna gain - db
+    G = antenna gain - db (default = 45)
     sigma = RCS - m^2
     BW = bandwidth - Hz
     NF = noisefigure dB
@@ -60,23 +60,17 @@ def RadarRngEq():
     snrplot = 1
     propplot = 1
     pat_plot = 1
-    #rcsplot = 1
+    rcsplot = 1
     #gainplot = 0
 
     # Local Vars
     lambda_ = c0/freq #wavelength
     #beta = el_angle
     range_ = target_range
-    ht = target_alt
+    #ht = target_alt
     sigma = target_rcs
-    
-    range_vec = linspace(2000, 55000, 500) # for graphing
-
-    # Propogation Effects
-    F_graph = atmos_effects.multipath(range_vec, ht, hr)
-    F_graph = 4*w2db(0.0015+F_graph)
     F = atmos_effects.multipath(range_, ht, hr)
-    #L_a = atmos_effects.atmo_absorp(ht, hr, freq, beta)
+
 
     # dB Conversions
     lambda_sqdb = w2db(lambda_**2)
@@ -88,36 +82,59 @@ def RadarRngEq():
     range_db = w2db(range_**4)
     four_pi_db = w2db((4*pi)**3)
     F_db = 4 * w2db(0.0015+F)
+    tau_db = 10*log10(.2/12000)
+    det_thresh = 13
 
+    # Data Shaping
+    if isscalar(G) is False:
+           range_vec = linspace(2000, 100000, G.size) # for graphing
+           G_vec = broadcast_to(G, (range_vec.size, G.size))
+           range_vec = broadcast_to(range_vec, (range_vec.size, G.size))
+    else:
+           range_vec = linspace(2000, 250000, 1000)
+    F_graph = atmos_effects.multipath(range_vec[0], ht, hr)
+    F_graph = 4*w2db(0.0015+F_graph)
+
+    #L_a = atmos_effects.atmo_absorp(ht, hr, freq, beta)
 
     # Radar Range Eq
     tx_db = pt_db + G + G + lambda_sqdb + sigma_db + F_db
     rx_db = four_pi_db + k_db + To_db + BW_db + NF + loss + range_db
-
     snr = tx_db - rx_db
+    # TODO: Return to this
+#    R_p = pt_db + G + G + lambda_sqdb + sigma_db + tau_db + F_graph + w2db(.01)
+#    R_n = four_pi_db + k_db + To_db + NF + det_thresh
+#    R_max = (R_p - R_n)**(1/4)
+#    R_max = db2w(R_max)
+    tx_db_graph = pt_db + G.max() + G.max() + lambda_sqdb + sigma_db + F_graph
+    rx_db_graph = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec[0]**4)
+    snr_graph = tx_db_graph.real - rx_db_graph
+    print("The range at which your target first drops out due to multipath is " +
+          str(range_vec[0][argmax(snr_graph < det_thresh)]) + " meters")
 
 
     if snrplot == True:
         # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
-        tx_db_graph = pt_db + G + G + lambda_sqdb + sigma_db + F_graph
-        rx_db_graph = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec**4)
-        snr_graph = tx_db_graph - rx_db_graph
-        plots.snr_plot(range_vec,snr_graph)
-    
+        plots.snr_plot(range_vec[0],snr_graph)
+
     if propplot == True:
         # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
-        plots.propogation_plot(range_vec,F_graph)
+        plots.propogation_plot(range_vec[0],F_graph.real)
 
-#    if rcsplot is True:
-#        plots.rcs_plot(range_,sigma_db)
+    if rcsplot is True:
+        plots.rcs_plot(range_,sigma_db)
 
 
 
     if pat_plot == True:
         # !!! Delete the pound sign (#) below and put your pattern filename between the  '-'. Should look like plots.ant_pat(filename = '51by51_circ_pat_db.mat')
         #plots.ant_pat(filename = '<your_filename_here>')
-        plots.ant_pat()
+        plots.ant_pat(filename = 'a.mat')
+
+#    if detrng is True:
+#        plots.det_range()
+
 
     # HACK: return all variable for viewing sanity check
-    return F_db, pt_db, lambda_sqdb, k_db, sigma_db, To_db, BW_db, range_db, four_pi_db, snr
-F_dB, pt_db, lambda_sqdb, k_db, sigma_db, to_db, b_db, range_db, four_pi_db, snr = RadarRngEq()
+    return snr_graph
+#RadarRngEq()
