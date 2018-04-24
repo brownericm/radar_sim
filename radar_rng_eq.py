@@ -37,7 +37,7 @@ import atmos_effects
 from numpy import pi, linspace, log10, max, isscalar, broadcast_to, argmax
 import plotting as plots
 
-def RadarRngEq(G, ht):
+def RadarRngEq(G, beam_el, filename):
     """Prints SNR, will be modified for other uses later
 
     SNR = (pt*g^2*lambda_^2*sigma)/((4*pi)^3*k*temp_s*nf*l*r^4)
@@ -57,17 +57,17 @@ def RadarRngEq(G, ht):
     #######################
     #   TOGGLE PLOTTING   #
     #######################
-    snrplot = 1
-    propplot = 1
-    pat_plot = 1
-    rcsplot = 1
-    #gainplot = 0
+#    snrplot = 1
+#    propplot = 1
+#    pat_plot = 1
+#    rcsplot = 1
+    gainplot = 0
 
     # Local Vars
     lambda_ = c0/freq #wavelength
     #beta = el_angle
     range_ = target_range
-    #ht = target_alt
+    ht = target_alt
     sigma = target_rcs
     F = atmos_effects.multipath(range_, ht, hr)
 
@@ -109,32 +109,14 @@ def RadarRngEq(G, ht):
     tx_db_graph = pt_db + G.max() + G.max() + lambda_sqdb + sigma_db + F_graph
     rx_db_graph = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec[0]**4)
     snr_graph = tx_db_graph.real - rx_db_graph
+    tx_noF = pt_db + G.max() + G.max() + lambda_sqdb + sigma_db
+    rx_noF = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec[0]**4)
+    snr_noF = tx_noF - rx_noF
+
     print("The range at which your target first drops out due to multipath is " +
           str(range_vec[0][argmax(snr_graph < det_thresh)]) + " meters")
 
 
-    if snrplot == True:
-        # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
-        plots.snr_plot(range_vec[0],snr_graph)
-
-    if propplot == True:
-        # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
-        plots.propogation_plot(range_vec[0],F_graph.real)
-
-    if rcsplot is True:
-        plots.rcs_plot(range_,sigma_db)
-
-
-
-    if pat_plot == True:
-        # !!! Delete the pound sign (#) below and put your pattern filename between the  '-'. Should look like plots.ant_pat(filename = '51by51_circ_pat_db.mat')
-        #plots.ant_pat(filename = '<your_filename_here>')
-        plots.ant_pat(filename = 'a.mat')
-
-#    if detrng is True:
-#        plots.det_range()
-
-
     # HACK: return all variable for viewing sanity check
-    return snr_graph
+    return snr_graph, range_, sigma_db, F_graph, range_vec, snr_noF
 #RadarRngEq()

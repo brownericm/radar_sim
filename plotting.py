@@ -23,10 +23,10 @@ import numpy as np
 import convert
 import scipy.io as sio
 
-def snr_plot(range_,snr):
+def snr_plot(range_,snr, snr_noF):
     f1 = plt.figure()
     x1 = f1.gca()
-    p1 = x1.plot(range_,snr)
+    p1 = x1.plot(range_,snr_noF, 'b--', range_, snr)
     x1.set(xlabel = 'Range in meters', ylabel = 'SNR in dB', title = 'SNR vs. Range')
     plt.show()
     return
@@ -94,11 +94,11 @@ def ant_pat(filename = None):
     return
 
 def det_range():
-        
+
     return
 
 def rng_v_angle():
-    
+
     return
 
 def rng_dop_map():

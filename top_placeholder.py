@@ -13,24 +13,26 @@ manage the final pulse return data structure and sub arrays.
 import scipy as sp
 import scipy.io as sio
 import radar_rng_eq as rre
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import plotting as plots
 
-#########################################
-# PLEASE INPUT SIMULATED BEAM ELEVATION #
-#########################################
-beam_el = 15
+#############################################
+# PLEASE INPUT THESE ITEMS FROM YOUR DESIGN #
+#############################################
+beam_el = 15 # at what theta did you  place the boresight?
+filename = 'a.mat' # with or without the file extension this should still work
 
 #######################
 #   TOGGLE PLOTTING   #
 #######################
 # TODO: Make plotting options into list before passing
-snrplot = 0
-propplot = 0
-pat_plot = 0
-#rcsplot = 1
-#gainplot = 0
-detrng = 1
-rng_angle = 1
+snrplot = 1
+propplot = 1
+pat_plot = 1
+rcsplot = 1
+# gainplot = 0
+# detrng = 1
+# rng_angle = 1
 
 ######################
 ##    FUNCTIONS     ##
@@ -55,9 +57,33 @@ G_el = sp.reshape(pattern[ind[1]], (1,pattern[ind[1]].size))
 
 
 #R_max_az = rre.RadarRngEq(G_az)
-R_max_el = rre.RadarRngEq(G_el, beam_el)
+snr_graph, range_, sigma_db, F_graph, range_vec, snr_noF = rre.RadarRngEq(G_el, beam_el, filename)
 
 # fixing x-ticks
+
+#########
+# PLOTS #
+########
+if snrplot == True:
+    # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
+    plots.snr_plot(range_vec[0],snr_graph, snr_noF)
+    #plots.snr_plot(range_vec[0],snr_noF)
+
+if propplot == True:
+    # HACK: I want to show standard plots for students while still developing the more sophisticated scenario
+    plots.propogation_plot(range_vec[0],F_graph.real)
+
+if rcsplot is True:
+    plots.rcs_plot(range_,sigma_db)
+
+
+
+if pat_plot == True:
+    plots.ant_pat(filename)
+
+#    if detrng is True:
+#        plots.det_range()
+
 
 #X_el = sp.arange(0,G_el.size,1)
 #r1 = plt.figure()
