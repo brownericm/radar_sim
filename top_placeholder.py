@@ -19,8 +19,11 @@ import plotting as plots
 #############################################
 # PLEASE INPUT THESE ITEMS FROM YOUR DESIGN #
 #############################################
+# My beam patter will no longer be loaded by default, you MUST declare a filename
+
 beam_el = 15 # at what theta did you  place the boresight?
 filename = 'a.mat' # with or without the file extension this should still work
+var = '<YOUR MATLAB VARIABLE NAME HERE>' # Use the name that was used in MATLAB
 
 #######################
 #   TOGGLE PLOTTING   #
@@ -38,16 +41,15 @@ rcsplot = 1
 ##    FUNCTIONS     ##
 ######################
 
-def load_pat(filename = None):
-    if filename is None:
-        file = sio.loadmat('a.mat')
-        file_pat = file[list(file.keys())[3]]
-
-    else:
-        file = sio.loadmat(filename)
-    file_pat = file[list(file.keys())[3]]
+def load_pat(filename):
+#    if filename is None:
+#        file = sio.loadmat('a.mat')
+#        file_pat = file[list(file.keys())[3]]
+#    else:
+    file = sio.loadmat(filename)
+    file_pat = file[var]
     return file_pat
-pattern = load_pat()
+pattern = load_pat(filename)
 max_G = pattern.max()
 
 #find maximal cut axes (row,colum)
@@ -59,7 +61,6 @@ G_el = sp.reshape(pattern[ind[1]], (1,pattern[ind[1]].size))
 #R_max_az = rre.RadarRngEq(G_az)
 snr_graph, range_, sigma_db, F_graph, range_vec, snr_noF = rre.RadarRngEq(G_el, beam_el, filename)
 
-# fixing x-ticks
 
 #########
 # PLOTS #
@@ -79,7 +80,7 @@ if rcsplot is True:
 
 
 if pat_plot == True:
-    plots.ant_pat(filename)
+    plots.ant_pat(pattern)
 
 #    if detrng is True:
 #        plots.det_range()

@@ -54,7 +54,7 @@ def gain_plot(range_,G):
     plt.show()
     return
 
-def ant_pat(filename = None):
+def ant_pat(pattern):
     """
     !!! FOR ENGIN 465 !!!
     In order to plot your array pattern, save the pattern file in your radar_sim folder. Pass the filename into the plotting call in radar_rng_eq
@@ -63,28 +63,28 @@ def ant_pat(filename = None):
     Remember to convert to dB either in MATLAB or use convert.w2db(<your_imported_pattern>)
     """
 
-    if filename is None:
-        file = sio.loadmat('51by51_circ_pat_db.mat')
-        file_pat = file['pattern']
-
-    else:
-        file = sio.loadmat(filename)
-
-    file_pat = file['pattern']
+#    if filename is None:
+#        file = sio.loadmat('a.mat')
+#        file_pat = file['pattern']
+#
+#    else:
+#        file = sio.loadmat(filename)
+#
+#    file_pat = file['pattern']
 
     # Set up dimension for graphing
-    dim = np.shape(file_pat)
+    dim = np.shape(pattern)
     X = np.arange(0,dim[0])
     Y = np.arange(0,dim[1])
     X, Y = np.meshgrid(X, Y)
-    Z = file_pat
+    Z = pattern
 
     # Plot
     f1 = plt.figure()
     a1 = plt.subplot(2,1,1)
     a2 = plt.subplot(2,1,2,projection='3d')
 
-    p1 = a1.contour(file_pat)
+    p1 = a1.contour(pattern)
     a1.set_title('Contour plot of pattern matrix')
     a1.set_xlabel('intensity per cell X (dB)')
     a1.set_ylabel('Intensity per cell Y (dB)')
