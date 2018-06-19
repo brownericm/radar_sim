@@ -68,10 +68,10 @@ def calc_rcv_pow(G = 45, beam_el = None):
     det_thresh = 13
     """
     # Data Shaping
-    if isscalar(G) is False:
-        range_vec = linspace(2000, 100000, G.size)  # for graphing
-        G_vec = broadcast_to(G, (range_vec.size, G.size))
-        range_vec = broadcast_to(range_vec, (range_vec.size, G.size))
+    if isscalar(gain) is False:
+        range_vec = linspace(2000, 100000, gain.size)  # for graphing
+        G_vec = broadcast_to(gain, (range_vec.size, gain.size))
+        range_vec = broadcast_to(range_vec, (range_vec.size, gain.size))
     else:
         range_vec = linspace(2000, 250000, 1000)
     F_graph = atmos_effects.multipath(range_vec[0], ht, hr)
@@ -87,15 +87,15 @@ def calc_rcv_pow(G = 45, beam_el = None):
     return rx_db
 """
     # TODO: Return to this
-    #    R_p = pt_db + G + G + lambda_sqdb + sigma_db + tau_db + F_graph + w2db(.01)
+    #    R_p = pt_db + gain + gain + lambda_sqdb + sigma_db + tau_db + F_graph + w2db(.01)
     #    R_n = four_pi_db + k_db + To_db + NF + det_thresh
     #    R_max = (R_p - R_n)**(1/4)
     #    R_max = db2w(R_max)
     
-    tx_db_graph = pt_db + G.max() + G.max() + lambda_sqdb + sigma_db + F_graph
+    tx_db_graph = pt_db + gain.max() + gain.max() + lambda_sqdb + sigma_db + F_graph
     rx_db_graph = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec[0] ** 4)
     snr_graph = tx_db_graph.real - rx_db_graph
-    tx_noF = pt_db + G.max() + G.max() + lambda_sqdb + sigma_db
+    tx_noF = pt_db + gain.max() + gain.max() + lambda_sqdb + sigma_db
     rx_noF = four_pi_db + k_db + To_db + BW_db + NF + loss + w2db(range_vec[0] ** 4)
     snr_noF = tx_noF - rx_noF
     """
@@ -134,7 +134,7 @@ def gen_data():
             index2 = index1 + min(len(rp.ts-1), numbins-index1)
             index_size = sp.arange(index1, index2+1)
             rev_tmp = tmp_array[0:index_size]
-            p_data[p, index_size = p_data[p, index_size] + rev_tmp[:: -1]
+            p_data[p, index_size ]= p_data[p, index_size] + rev_tmp[:: -1]
         cpi_start = cpi_start + time + tcpi + 1/rp.fs
         '''
         sort the data into a structure of some kind

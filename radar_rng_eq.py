@@ -43,7 +43,7 @@ def RadarRngEq(G, beam_el, filename):
     SNR = (pt*g^2*lambda_^2*sigma)/((4*pi)^3*k*temp_s*nf*l*r^4)
     pt = power transmitted - Watts
     freq = radar freq - Hz
-    G = antenna gain - db (default = 45)
+    gain = antenna gain - db (default = 45)
     sigma = RCS - m^2
     BW = bandwidth - Hz
     NF = noisefigure dB
@@ -102,7 +102,7 @@ def RadarRngEq(G, beam_el, filename):
     rx_db = four_pi_db + k_db + To_db + BW_db + NF + loss + range_db
     snr = tx_db - rx_db
     # TODO: Return to this
-#    R_p = pt_db + G + G + lambda_sqdb + sigma_db + tau_db + F_graph + w2db(.01)
+#    R_p = pt_db + gain + gain + lambda_sqdb + sigma_db + tau_db + F_graph + w2db(.01)
 #    R_n = four_pi_db + k_db + To_db + NF + det_thresh
 #    R_max = (R_p - R_n)**(1/4)
 #    R_max = db2w(R_max)
